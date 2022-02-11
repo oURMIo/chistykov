@@ -1,0 +1,47 @@
+all:
+  hosts:
+    192.168.1.103
+    192.168.1.100
+    192.168.1.204
+    192.168.1.102
+  become: yes
+  tasks:
+    name: update all
+    apt: upgrade=dist force_apt_get=yes
+    
+    name: install curl
+    apt: name=curl
+    
+    name: allow port 80
+    community.general.ufw:
+      rule: allow
+      port: 80
+      proto: tcp
+      
+    name: allow port 8080
+    community.general.ufw:
+      rule: allow
+      port: 8080
+      proto: tcp
+
+    name: allow port 1834
+    community.general.ufw:
+      rule: allow
+      port: 1834
+      proto: tcp
+      
+    name: config ssh
+    community.general.ssh:
+      port: 1834
+      key: "{{ lookup('file', '/root/.ssh/id_rsa.pud')}}"
+      
+    name: restart ssh
+    community.general.ssh:
+      state: reset
+
+    name: restart ufw
+    community.general.ufw:
+      state: reset
+      
+    name: reboot machine
+      reboot:
